@@ -6,7 +6,7 @@
 /*   By: akezanna <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/27 19:26:11 by akezanna          #+#    #+#             */
-/*   Updated: 2019/12/12 14:45:58 by akezanna         ###   ########.fr       */
+/*   Updated: 2020/01/06 20:43:58 by akezanna         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,21 +57,25 @@ static	int		findline(char **rest, char **line)
 		perm = ft_strdup(ft_strchr(*rest, '\n') + 1);
 		ft_memdel(rest);
 		*rest = perm;
+		return (1);
 	}
 	else
 	{
 		*line = ft_strdup(*rest);
 		ft_memdel(rest);
 	}
-	return (1);
+	return (0);
 }
 
 static	int		returnvalue(char **rest, char **line, int readres)
 {
 	if (readres < 0)
 		return (-1);
-	else if (*rest == NULL || **rest == '\0')
+	else if (*rest == NULL)
+	{
+		*line = ft_strdup("");
 		return (0);
+	}
 	else
 		return (findline(rest, line));
 }
@@ -79,11 +83,12 @@ static	int		returnvalue(char **rest, char **line, int readres)
 int				get_next_line(int fd, char **line)
 {
 	int				res;
-	char			buff[BUFFER_SIZE + 1];
+	char			*buff;
 	static	char	*rest[4864];
 	char			*perm;
 
-	if (fd < 0 || fd >= 4864 || BUFFER_SIZE <= 0 || !line)
+	if (fd < 0 || fd > 4864 || BUFFER_SIZE <= 0 || !line ||
+			!(buff = (char *)malloc(BUFFER_SIZE + 1)))
 		return (-1);
 	while ((res = read(fd, buff, BUFFER_SIZE)) > 0)
 	{
@@ -95,5 +100,6 @@ int				get_next_line(int fd, char **line)
 		if (ft_strchr(buff, '\n'))
 			break ;
 	}
+	free(buff);
 	return (returnvalue(rest + fd, line, res));
 }
